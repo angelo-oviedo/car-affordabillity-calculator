@@ -9,22 +9,46 @@ import statistics
 #     - Driving frequency on weekdays and weekends.
 
 def getFuelData(url, fuel_type):
-    
-    # Get the html content of the webpage and parse it
-    soup = BeautifulSoup(requests.get(url).text, 'html.parser')
+    try:
+        # Start a session for efficient network calls
+        with requests.Session() as session:
+            response = session.get(url)
+            response.raise_for_status()  # Raise an exception for HTTP errors
+            soup = BeautifulSoup(response.text, 'html.parser')
 
-    # Get the specific fuel average price depending of the type
-    if (fuel_type in ["gasoline", "Gasoline"]):
-        # Extract the entire row refering to the US row of the table regarding gasoline
-        gas_row = soup.find('a', href="/dnav/pet/pet_pri_gnd_dcus_nus_w.htm").parent.parent
-        # Extract the numeric values from the 'td' elements with the 3 last data points
-        values = [float(td.get_text()) for td in gas_row.find_all('td')[1:4]]
-        # Get the average price, since we have the value for the last 3 weeks
-        average_gasoline_price = round(statistics.fmean(values), 3)
-        return average_gasoline_price
+            # Find the table by caption depending on the fuel type
+            if fuel_type.lower() == "gasoline":
+                caption = "U.S. Regular Gasoline Prices*(dollars per gallon)"
+            elif fuel_type.lower() == "diesel":
+                caption = "U.S. On-Highway Diesel Fuel Prices*(dollars per gallon)"
+            else:
+                raise ValueError(f"Invalid fuel type: {fuel_type}")
+
+            # Find the table with the correct caption
+            table = soup.find('caption', text=re.compile(caption, re.IGNORECASE)).find_parent('table')
+            
+            # Extract the entire row referring to the US row of the table
+            fuel_row = table.find('a', href="/dnav/pet/pet_pri_gnd_dcus_nus_w.htm").find_parent('tr')
+            values = [float(td.get_text()) for td in fuel_row.find_all('td')[1:4]]
+
+            # Check if values list is not empty before calculating mean
+            if values:
+                average_price = round(statistics.fmean(values), 3)
+            else:
+                raise ValueError(f"No data found for {fuel_type} fuel type.")
+
+            return average_price
+    except requests.RequestException as e:
+        print(f"Request failed: {e}")
+    except ValueError as e:
+        print(e)
+
+def calculateMonthlyFuelCost(fuel_type, MPG, avg_dist_per_weekday, avg_dist_per_weekend, URL):
+    avg_fuel_price = getFuelData(URL, fuel_type)
+    if avg_fuel_price is not None:
+        total_avg_miles_per_week = avg_dist_per_weekday * 5 + avg_dist_per_weekend * 2
+        avg_fuel_consuption = total_avg_miles_per_week / MPG
+        approx_monthly_fuel_cost = round((avg_fuel_price * avg_fuel_consuption) * 4, 2)
+        return approx_monthly_fuel_cost
     else:
-        # Extract the entire row refering to the US row of the table regarding diesel
-        diesel_row = soup.find('a', href="/dnav/pet/pet_pri_gnd_dcus_nus_w.htm").parent.parent
-        values = [float(td.get_text()) for td in diesel_row.find_all('td')[1:4]]
-        average_diesel_price = round(statistics.fmean(values), 3)
-        return average_diesel_price
+        return "Could not calculate fuel cost due to missing data."
