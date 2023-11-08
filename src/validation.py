@@ -10,6 +10,19 @@ regex_expressions = {
 }
 
 def validated_input(regex_expressions, expression_type, user_input):
+    """
+    Validates the user input based on a regular expression.
+    It is used to ensure that the input conforms to the expected data type (e.g., string, integer, float).
+
+    Args:
+        regex_expressions (dict): A dictionary containing regular expression patterns for different input types.
+        expression_type (str): The key for the type of expression to match (e.g., 'string', 'int', 'float').
+        user_input (str): The input provided by the user that needs to be validated.
+
+    Returns:
+        bool: True if the input matches the regular expression, False otherwise.
+    """
+
     if not re.match(regex_expressions[expression_type], user_input):
         print(f"Error! Make sure you are entering a valid {expression_type}.")
         return False
