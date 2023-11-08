@@ -9,7 +9,20 @@ import statistics
 #     - Driving frequency on weekdays and weekends.
 
 def getFuelData(url, fuel_type):
-    
+    """
+    Fetches the average fuel price from a given web page.
+
+    Args:
+        url (str): The URL of the web page to scrape the fuel data from.
+        fuel_type (str): The type of fuel to fetch the data for. Valid options are 'gasoline' or 'diesel'.
+
+    Returns:
+        float: The average fuel price for the specified fuel type.
+
+    Raises:
+        ValueError: If an invalid fuel type is specified or if no data could be found.
+        requests.RequestException: If there is an issue with the network call.
+    """
     try:
         # Start a session for efficient network calls
         with requests.Session() as session:
@@ -45,6 +58,19 @@ def getFuelData(url, fuel_type):
         print(e)
 
 def calculateMonthlyFuelCost(fuel_type, MPG, avg_dist_per_weekday, avg_dist_per_weekend, URL):
+    """
+    Calculates the estimated monthly fuel cost based on vehicle efficiency and driving frequency.
+
+    Args:
+        fuel_type (str): The type of fuel used by the vehicle ('gasoline' or 'diesel').
+        MPG (float): The fuel efficiency of the vehicle in miles per gallon.
+        avg_dist_per_weekday (float): The average distance driven per weekday.
+        avg_dist_per_weekend (float): The average distance driven per weekend day.
+        URL (str): The URL to fetch current fuel prices from.
+
+    Returns:
+        float: The estimated monthly fuel cost.
+    """
     avg_fuel_price = getFuelData(URL, fuel_type)
     if avg_fuel_price is not None:
         total_avg_miles_per_week = avg_dist_per_weekday * 5 + avg_dist_per_weekend * 2
