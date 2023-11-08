@@ -5,7 +5,7 @@ import re
 regex_expressions = {
     "string": "^[A-Za-z ]+$",  # Matches one or more letters and spaces
     "int": "^\d+$",            # Matches one or more digits
-    "float": "^-?\d*(\.\d+)?$", # Matches an optional leading sign, any number of digits, an optional decimal point, and more digits
+    "float": "^\d*(\.\d+)?$",  # Matches any number of digits, an optional decimal point, and more digits, but no negative sign
     "fuel": "^(gasoline|diesel|Gasoline|Diesel)$" # Matches to only the words "gasoline" and "fuel" for a special validation
 }
 
