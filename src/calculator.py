@@ -4,10 +4,6 @@ from bs4 import BeautifulSoup
 import requests
 import statistics
 
-# - Calculate monthly gas costs based on:
-#     - MPG/gas efficiency.
-#     - Driving frequency on weekdays and weekends.
-
 def getFuelData(url, fuel_type):
     """
     Fetches the average fuel price from a given web page.
@@ -80,9 +76,6 @@ def calculateMonthlyFuelCost(fuel_type, MPG, avg_dist_per_weekday, avg_dist_per_
     else:
         return "Could not calculate fuel cost due to missing data."
 
-# Car loan and interest rate calculations:
-#     - Monthly cost calculation including down payment consideration.
-
 def calculateMonthlyLoanPayments(loan_amount, down_payment, annual_interest_rate, loan_term_years):
     """
     Calculate the monthly payment of a loan.
@@ -108,3 +101,35 @@ def calculateMonthlyLoanPayments(loan_amount, down_payment, annual_interest_rate
     monthly_payment = principal * (monthly_interest_rate * (1 + monthly_interest_rate) ** number_of_payments) / ((1 + monthly_interest_rate) ** number_of_payments - 1)
     
     return monthly_payment
+
+def calculateMonthlyOwnershipCosts(yearly_maintenance_cost, yearly_insurance_cost, yearly_registration_cost, yearly_repair_cost, fuel_type, MPG, avg_dist_per_weekday, avg_dist_per_weekend, URL, loan_amount, down_payment, annual_interest_rate, loan_term_years):
+    """
+    Calculates the estimated total monthly cost of owning a vehicle.
+
+    This includes all recurring costs such as maintenance, insurance, registration, and repair costs, 
+    as well as the monthly fuel cost and loan payment.
+
+    Args:
+        yearly_maintenance_cost (float): The estimated yearly cost for maintenance.
+        yearly_insurance_cost (float): The estimated yearly cost for insurance.
+        yearly_registration_cost (float): The estimated yearly cost for registration.
+        yearly_repair_cost (float): The estimated yearly cost for repairs.
+        fuel_type (str): The type of fuel used by the vehicle ('gasoline' or 'diesel').
+        MPG (float): The fuel efficiency of the vehicle in miles per gallon.
+        avg_dist_per_weekday (float): The average distance driven per weekday.
+        avg_dist_per_weekend (float): The average distance driven per weekend day.
+        URL (str): The URL to fetch current fuel prices from.
+        loan_amount (float): Total amount of the car loan.
+        down_payment (float): The down payment made on the car loan.
+        annual_interest_rate (float): The annual interest rate for the car loan.
+        loan_term_years (int): The term of the car loan in years.
+
+    Returns:
+        float: The estimated total monthly cost of ownership.
+    """
+
+    monthly_estimations = (yearly_maintenance_cost + yearly_insurance_cost + yearly_registration_cost + yearly_repair_cost) / 12
+    monthly_fuel_cost = calculateMonthlyFuelCost(fuel_type, MPG, avg_dist_per_weekday, avg_dist_per_weekend, URL)
+    monthly_loan_payment = calculateMonthlyLoanPayments(loan_amount, down_payment, annual_interest_rate, loan_term_years)
+    monthly_ownership_cost = monthly_estimations + monthly_fuel_cost + monthly_loan_payment
+    return monthly_ownership_cost
