@@ -19,6 +19,7 @@ input_dict = {
         "Estimated yearly repair cost": ("What is the estimated yearly repair cost? ($):", "float"),
         "Car loan ammount": ("What is the car loan ammount? ($):", "float"),
         "Car loan interest rate": ("What is the car loan annual interest rate? (%):", "float"),
+        "Car loan time": ("What is the car length of the loan term in years? (ex: 2):", "float"),
         "Car loan down payment": ("What is the car loan down payment? ($):", "float"),
     },
 }
