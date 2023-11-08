@@ -3,7 +3,7 @@ from validation import validated_input, regex_expressions
 
 input_dict = {
     "user_inputs": {
-        "name": ("What is your name?:", "string")    
+        "name": ("What is your name?: ", "string")    
     },
     "vehicles_inputs": {
         "make": ("What is the make of the vehicle?:", "string"),
