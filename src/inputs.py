@@ -10,7 +10,7 @@ input_dict = {
         "model": ("What is the model of the vehicle?:","string"),
         "year": ("What is the year of the vehicle?:", "int"),
         "MPG (miles per gallon)": ("What is the MPG of the vehicle?:", "float"),
-        "fuel type": ("What is the fuel type of the vehicle? (gasoline, diesel, electric):", "fuel"),
+        "fuel type": ("What is the fuel type of the vehicle? (gasoline, diesel):", "fuel"),
         "Average distance driven per day": ("What is the average distance driven per day? (miles):", "float"),
         "Estimated yearly maintenance cost": ("What is the estimated yearly maintenance cost? ($):", "float"),
         "Estimated yearly insurance cost": ("What is the estimated yearly insurance cost? ($):", "float"),
