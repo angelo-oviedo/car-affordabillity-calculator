@@ -1,8 +1,8 @@
 # Libraries import
-import re
 from bs4 import BeautifulSoup
 import requests
-import statistics
+from fake_useragent import UserAgent
+
 
 def getFuelData(url, fuel_type):
     """
@@ -20,38 +20,54 @@ def getFuelData(url, fuel_type):
         requests.RequestException: If there is an issue with the network call.
     """
     try:
-        # Start a session for efficient network calls
+        ua = UserAgent()
+        
+        
+        # Create a fake user agent to avoid being blocked by the website
+        headers = {
+            'User-Agent': ua.chrome
+        }
+
+        # Fetch the page and create a session to keep the connection open
         with requests.Session() as session:
-            response = session.get(url)
-            response.raise_for_status()  # Raise an exception for HTTP errors
+            response = session.get(url, headers=headers)
+            response.raise_for_status()
             soup = BeautifulSoup(response.text, 'html.parser')
 
-            # Find the table by caption depending on the fuel type
-            if fuel_type.lower() == "gasoline":
-                caption = "U.S. Regular Gasoline Prices*(dollars per gallon)"
-            elif fuel_type.lower() == "diesel":
-                caption = "U.S. On-Highway Diesel Fuel Prices*(dollars per gallon)"
+            # Find the table
+            table = soup.find('table', class_='table-mob')
+            if not table:
+                raise ValueError("Table not found.")
+
+            # Extract the headers (fuel types)
+            headers = [th.get_text().strip() for th in table.find_all('th')]
+            if 'Regular' not in headers or 'Diesel' not in headers:
+                raise ValueError("Regular or Diesel headers not found.")
+
+            # Find the index for Regular and Diesel
+            regular_index = headers.index('Regular')
+            diesel_index = headers.index('Diesel')
+
+            # Find the row for current average prices
+            current_avg_row = table.find('td', string='Current Avg.').find_parent('tr')
+            if not current_avg_row:
+                raise ValueError("Current average prices row not found.")
+
+            # Extract the prices
+            prices = [td.get_text() for td in current_avg_row.find_all('td')]
+            if(fuel_type == 'gasoline'):
+                gasoline_price = prices[regular_index].split('$')[1]
+                return float(gasoline_price)
+            elif(fuel_type == 'diesel'):
+                diesel_price = prices[diesel_index].split('$')[1]
+                return float(diesel_price)
             else:
-                raise ValueError(f"Invalid fuel type: {fuel_type}")
-
-            # Find the table with the correct caption
-            table = soup.find('caption', text=re.compile(caption, re.IGNORECASE)).find_parent('table')
-            
-            # Extract the entire row referring to the US row of the table
-            fuel_row = table.find('a', href="/dnav/pet/pet_pri_gnd_dcus_nus_w.htm").find_parent('tr')
-            values = [float(td.get_text()) for td in fuel_row.find_all('td')[1:4]]
-
-            # Check if values list is not empty before calculating mean
-            if values:
-                average_price = round(statistics.fmean(values), 3)
-            else:
-                raise ValueError(f"No data found for {fuel_type} fuel type.")
-
-            return average_price
+                raise ValueError("Invalid fuel type specified.")
     except requests.RequestException as e:
         print(f"Request failed: {e}")
     except ValueError as e:
         print(e)
+                
 
 def calculateMonthlyFuelCost(fuel_type, MPG, avg_dist_per_weekday, avg_dist_per_weekend, URL):
     """
@@ -125,11 +141,19 @@ def calculateMonthlyOwnershipCosts(yearly_maintenance_cost, yearly_insurance_cos
         loan_term_years (int): The term of the car loan in years.
 
     Returns:
-        float: The estimated total monthly cost of ownership.
+        dict: The estimated costs of all costs and other specifics.
     """
-
-    monthly_estimations = (yearly_maintenance_cost + yearly_insurance_cost + yearly_registration_cost + yearly_repair_cost) / 12
+    
+    yearly_estimations = (yearly_maintenance_cost + yearly_insurance_cost + yearly_registration_cost + yearly_repair_cost)
+    monthly_estimations = (yearly_estimations / 12)
     monthly_fuel_cost = calculateMonthlyFuelCost(fuel_type, MPG, avg_dist_per_weekday, avg_dist_per_weekend, URL)
     monthly_loan_payment = calculateMonthlyLoanPayments(loan_amount, down_payment, annual_interest_rate, loan_term_years)
     monthly_ownership_cost = monthly_estimations + monthly_fuel_cost + monthly_loan_payment
-    return monthly_ownership_cost
+    
+    user_facing_costs = {
+        "Yearly maintenance and repair costs": yearly_estimations,
+        "Monthly loan payment": monthly_loan_payment,
+        "Total monthly cost of ownership": monthly_ownership_cost,
+    }
+    
+    return user_facing_costs
