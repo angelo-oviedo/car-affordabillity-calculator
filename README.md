@@ -51,6 +51,24 @@ View the Results:
 
 -   The calculator will display a comprehensive breakdown of the costs associated with each vehicle, allowing you to make an informed decision.
 
+## Requirements
+
+The Car Affordability Calculator is designed to meet specific requirements that ensure a comprehensive and user-friendly experience. The key requirements include:
+
+-   User Interaction: Runs in a terminal-based interface, prompting users for relevant vehicle purchase information.
+-   Vehicle Data Input: Users can input details for a minimum of two vehicles, covering aspects like make, model, fuel efficiency, and financial details.
+-   Comprehensive Calculations: The tool calculates various costs such as monthly gas costs, yearly maintenance, and car loan details.
+-   Comparative Analysis: It offers a comparison of different vehicles, focusing on cost-effectiveness and total monthly expenses.
+-   Final Recommendation: Provides a clear and concise recommendation on which vehicle to buy, backed by calculated data.
+
+The complete list of requirements and detailed specifications can be found in the `requirements.md` file. This file includes both overall and specific functional requirements, as well as technical considerations for the project's development.
+
+### Acknowledgments
+
+This project was developed as part of a challenge posed by the PragmatiCoders community, an inspiring and collaborative group of developers and tech enthusiasts.
+
+#### Join the PragmatiCoders community: https://discord.gg/zMx6cUtr
+
 Contributing
 ------------
 
