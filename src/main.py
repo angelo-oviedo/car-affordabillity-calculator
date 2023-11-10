@@ -53,7 +53,7 @@ def main():
     #Calculate based on the inputs and the number of cars to evaluate
     
     # Initialize the URL for fetching fuel prices
-    fuel_price_url = "https://www.eia.gov/petroleum/gasdiesel/"
+    fuel_price_url = "https://gasprices.aaa.com/"
      # Calculate based on the inputs and the number of cars to evaluate
     for i, vehicle in enumerate(user_inputs['vehicle_details']):
         # Extracting details for each vehicle
