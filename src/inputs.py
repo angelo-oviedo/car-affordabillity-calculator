@@ -17,9 +17,9 @@ input_dict = {
         "Estimated yearly insurance cost": ("What is the estimated yearly insurance cost? ($):", "float"),
         "Estimated yearly registration cost": ("What is the estimated yearly registration cost? ($):", "float"),
         "Estimated yearly repair cost": ("What is the estimated yearly repair cost? ($):", "float"),
-        "Car loan ammount": ("What is the car loan ammount? ($):", "float"),
+        "Car loan amount": ("What is the car loan amount? ($):", "float"),
         "Car loan interest rate": ("What is the car loan annual interest rate? (%):", "float"),
-        "Car loan time": ("What is the car length of the loan term in years? (ex: 2):", "float"),
+        "Car loan time": ("What is the length of the loan term in years? (ex: 2):", "float"),
         "Car loan down payment": ("What is the car loan down payment? ($):", "float"),
     },
 }
@@ -73,7 +73,12 @@ def gather_imputs(input_dict):
         user_inputs["user_details"][input_key] = get_input(input_key, "user_inputs", input_dict, expected_type)
      
     # Get the vehicle information
-    n_vehicles = int(input("How many vehicles do you want to introduce?: "))
+    while True:
+        n_vehicles = int(input("How many vehicles do you want to introduce?: "))
+        if n_vehicles > 1: # If the user wants to introduce more than one vehicle, the program will ask for the information of each vehicle, otherwise it wont work since the program is not prepared for only one vehicle
+            break
+        else:
+            print("Invalid input, please try again.")
     
     # Build the correct dictionary for each vehicle the user inputs
     user_inputs['vehicle_details'] = []
