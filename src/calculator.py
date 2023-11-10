@@ -1,6 +1,7 @@
 # Libraries import
-from bs4 import BeautifulSoup
 import requests
+import termtables as tt
+from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 
 
@@ -151,9 +152,65 @@ def calculateMonthlyOwnershipCosts(yearly_maintenance_cost, yearly_insurance_cos
     monthly_ownership_cost = monthly_estimations + monthly_fuel_cost + monthly_loan_payment
     
     user_facing_costs = {
-        "Yearly maintenance and repair costs": yearly_estimations,
-        "Monthly loan payment": monthly_loan_payment,
-        "Total monthly cost of ownership": monthly_ownership_cost,
+        "Yearly maintenance and repair costs": round(yearly_estimations, 2),
+        "Monthly loan payment": round(monthly_loan_payment, 2),
+        "Total monthly cost of ownership": round(monthly_ownership_cost, 2),
     }
     
     return user_facing_costs
+
+def getRecommendation(information_dict):
+    """
+    This function makes a recommendation based on the information provided.
+    
+    Args:
+        information_dict (dict): A dictionary with the information to be displayed.
+        
+    Returns:
+        str: A string with the recommendation.
+        table: A table with the winning categories.
+    """
+    
+    # Extract the list of vehicles
+    vehicles = information_dict.get("vehicle_details", [])
+
+    # Give every vehicle a score variable
+    for vehicle in vehicles:
+        vehicle["score"] = 0
+
+    # Define categories for comparison and their sorting order (True for ascending, False for descending)
+    comparison_categories = {
+        "Total monthly cost of ownership": (True, lambda v: v["monthly_ownership_cost"]["Total monthly cost of ownership"]),
+        "Car loan interest rate": (True, lambda v: v["Car loan interest rate"]),
+        "Estimated yearly maintenance cost": (True, lambda v: v["Estimated yearly maintenance cost"]),
+        "MPG (miles per gallon)": (False, lambda v: v["MPG (miles per gallon)"]),
+        "Year": (False, lambda v: v["year"])
+    }
+
+    # Rank and score vehicles for each category
+    category_winners = {}
+    for category, (asc, key_func) in comparison_categories.items():
+        sorted_vehicles = sorted(vehicles, key=key_func, reverse=not asc)
+        for rank, vehicle in enumerate(sorted_vehicles, start=1):
+            # Higher rank means more points (better)
+            vehicle["score"] += (len(vehicles) + 1) - rank
+            if rank == 1:  # Record the winner for each category
+                category_winners[category] = vehicle['make'] + ' ' + vehicle['model']
+
+    # Find the vehicle with the highest score
+    recommended_vehicle = max(vehicles, key=lambda v: v["score"])
+    
+    # Prepare the recommendation string
+    recommendation = f"The recommended vehicle is the {recommended_vehicle['make']} {recommended_vehicle['model']} ({recommended_vehicle['year']}), with a total score of {recommended_vehicle['score']}. This vehicle excels in the following categories:"
+
+    # Add the winning categories for the recommended vehicle
+    for category, winner in category_winners.items():
+        if winner == recommended_vehicle['make'] + ' ' + recommended_vehicle['model']:
+            recommendation += f"\n- {category}"
+
+    # Generate and print the termtables for additional details
+    headers = ["Category", "Winner"]
+    data = [[category, winner] for category, winner in category_winners.items()]
+    table = tt.to_string(data, header=headers)
+
+    return recommendation, table
