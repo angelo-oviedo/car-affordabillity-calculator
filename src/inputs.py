@@ -48,6 +48,8 @@ def get_input(input_key, input_type, input_dict, expected_type):
                 return float(user_response)
             else:
                 return user_response
+        elif (user_response == ""):
+            print("Invalid input, please try again.")
         else:
             print("Invalid input, please try again.")
 
